@@ -19,4 +19,6 @@
     <string name="title_activity_timer">TimerActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="timer_start_button">start timer</string>
+    <string name="timer_end_button">end timer</string>
 </resources>
