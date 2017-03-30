@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -26,6 +27,15 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.firebase.client.Firebase;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +60,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
+
+    /**
+     * Firebase root URL
+     */
+    private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
+
+    /**
+     * Firebase Databse reference,
+     * Auth reference, and Firebase reference
+     */
+    private DatabaseReference mDatabase = null;
+    private FirebaseAuth mAuth = null;
+    private Firebase mFirebase = null;
+
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -66,11 +91,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+//        FirebaseApp.initializeApp(this);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView.setText("writersgroupunt@gmail.com");
         populateAutoComplete();
 
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+
+        Firebase.setAndroidContext(this);
+        mFirebase = new Firebase(FIREBASE_URL);
+
         mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView.setText("writersgroupunt2017");
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
         {
             @Override
@@ -187,11 +222,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password))
+        if (TextUtils.isEmpty(password))
         {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
+            // Check for a valid password, if the user entered one.
+            if (!isPasswordValid(password))
+            {
+                mPasswordView.setError(getString(R.string.error_invalid_password));
+                focusView = mPasswordView;
+                cancel = true;
+            }
         }
 
         // Check for a valid email address.
@@ -219,8 +258,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            showProgress(false);
+                            if (task.isSuccessful()) {
+                                String email = task.getResult().getUser().getEmail();
+                                String username;
+                                if (email.contains("@")) {
+                                    username = email.split("@")[0];
+                                } else {
+                                    username = email;
+                                }
+                                // Go to MainActivity
+                                // Changed by Satya
+                                Bundle bundle = new Bundle();
+                                Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
+                        //            bundle.putSerializable(vehicleId, vehicles.get(vehicleId));
+                        //            bundle.putSerializable(routeId, routes.get(routeId));
+                        //            bundle.putString("vehicleId", vehicleId);
+                        //            bundle.putString("routeId", routeId);
+                                mainActivityIntent.putExtras(bundle);
+                                startActivity(mainActivityIntent);
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Sign In Failed",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
         }
     }
 
@@ -400,6 +467,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        private String usernameFromEmail(String email) {
+            if (email.contains("@")) {
+                return email.split("@")[0];
+            } else {
+                return email;
+            }
         }
     }
 }

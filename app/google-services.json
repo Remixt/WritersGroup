@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "305821001276",
+    "firebase_url": "https://writersgroup-69ec1.firebaseio.com",
+    "project_id": "writersgroup-69ec1",
+    "storage_bucket": "writersgroup-69ec1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305821001276:android:ed985c0b5187d07b",
+        "android_client_info": {
+          "package_name": "csce.unt.writersgroup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "305821001276-qmg0k1cjqdvg5ktf0qf9ce9em5aqkqbn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPZ2D5tX696GEh7xcTvqfY_b1qhHtgBkw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
