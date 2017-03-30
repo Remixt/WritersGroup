@@ -8,7 +8,7 @@
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1">
@@ -23,28 +23,16 @@
             android:text="00:00:00.000"
             android:textColor="#33b5e5"
             android:textSize="50sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="parent" />
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/button_start_timer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/timer_start_button"
-            android:layout_marginLeft="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/text_timer" />
+            android:text="@string/timer_start_button" />
 
 
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 
 </FrameLayout>
