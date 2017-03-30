@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
 //                        .setAction("Action", null).show();
 //            }
 //        });
+        Button navigateTo;
         Button navigateToTimer = (Button) findViewById(R.id.button_go_to_timer);
         navigateToTimer.setOnClickListener(new View.OnClickListener()
         {
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity
                 ActivityUtil.showScreen(MainActivity.this, TimerActivity.class, bundle);
             }
         });
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string
