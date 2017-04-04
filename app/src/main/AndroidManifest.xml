@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -30,5 +31,8 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_timer"
             android:theme="@style/FullscreenTheme"></activity>
+        <activity android:name=".SetGroupsActivity" android:label="Set Up Groups" android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
     </application>
 </manifest>
