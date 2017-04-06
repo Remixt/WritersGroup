@@ -7,10 +7,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
@@ -44,6 +47,31 @@ public class MainActivity extends AppCompatActivity
                 Bundle bundle = new Bundle();
                 bundle.putLong(TimerActivity.ARG_TIMER_LENGTH, (1000) * 60 * 60);
                 ActivityUtil.showScreen(MainActivity.this, TimerActivity.class, bundle);
+            }
+        });
+
+        Button anchor_no=(Button) findViewById(R.id.dont_become_anchor_button);
+        anchor_no.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
+                anchor_buttons.setVisibility(View.GONE);
+                EditText anchor_reminder = (EditText) findViewById(R.id.anchor_reminder);
+                anchor_reminder.setVisibility(View.GONE);
+            }
+        });
+        Button anchor_yes=(Button) findViewById(R.id.become_anchor_button);
+        anchor_yes.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
+                anchor_buttons.setVisibility(View.GONE);
+                EditText anchor_reminder = (EditText) findViewById(R.id.anchor_reminder);
+                anchor_reminder.setVisibility(View.GONE);
             }
         });
 
