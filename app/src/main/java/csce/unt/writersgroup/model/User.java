@@ -12,6 +12,17 @@ public class User implements Serializable
     private String name;
     private String email;
     private String password;
+    private int pages;
+    private String anchor;
+
+    @Override
+    public String toString()
+    {
+        return "Writer{" +
+                "name='" + name + '\'' +
+                ", pages=" + pages +
+                '}';
+    }
 
     public User()
     {
@@ -36,11 +47,61 @@ public class User implements Serializable
         this.userId = id;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (pages != user.pages) return false;
+        return name != null ? name.equals(user.name) : user.name == null;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + pages;
+        return result;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public int getPages()
+    {
+        return pages;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setPages(int pages)
+    {
+        this.pages = pages;
+    }
+
+
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

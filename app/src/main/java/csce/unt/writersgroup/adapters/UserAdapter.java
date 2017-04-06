@@ -15,20 +15,20 @@ import com.woxthebox.draglistview.DragItemAdapter;
 import java.util.ArrayList;
 
 import csce.unt.writersgroup.R;
-import csce.unt.writersgroup.model.Writer;
+import csce.unt.writersgroup.model.User;
 
 /**
  * Created by GW on 3/27/2017.
  */
 
-public class WriterAdapter extends DragItemAdapter<Pair<Long, Writer>, WriterAdapter.ViewHolder>
+public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.ViewHolder>
 {
     private final int mLayoutId;
     private final int mGrabHandleId;
     private final boolean mDragOnLongPress;
 
-    public WriterAdapter(ArrayList<Pair<Long, Writer>> list, int layoutId, int grabHandleId,
-                         boolean dragOnLongPress)
+    public UserAdapter(ArrayList<Pair<Long, User>> list, int layoutId, int grabHandleId,
+                       boolean dragOnLongPress)
     {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
@@ -55,10 +55,10 @@ public class WriterAdapter extends DragItemAdapter<Pair<Long, Writer>, WriterAda
     public void onBindViewHolder(ViewHolder holder, int position)
     {
         super.onBindViewHolder(holder, position);
-        Writer writer = mItemList.get(position).second;
-        holder.writerName.setText(writer.getName());
-        holder.writerPages.setText(String.valueOf(writer.getPages()));
-        if(writer.getName().contains("1")){
+        User user = mItemList.get(position).second;
+        holder.writerName.setText(user.getName());
+        holder.writerPages.setText(String.valueOf(user.getPages()));
+        if(user.getName().contains("1")){
             holder.cardView.setCardBackgroundColor(Color.CYAN);
         }
         holder.itemView.setTag(mItemList.get(position));

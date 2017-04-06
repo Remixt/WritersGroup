@@ -17,8 +17,8 @@ import com.woxthebox.draglistview.BoardView;
 import java.util.ArrayList;
 import java.util.Random;
 
-import csce.unt.writersgroup.adapters.WriterAdapter;
-import csce.unt.writersgroup.model.Writer;
+import csce.unt.writersgroup.adapters.UserAdapter;
+import csce.unt.writersgroup.model.User;
 
 /**
  * Created by GW on 3/27/2017.
@@ -28,12 +28,12 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         BoardView.BoardListener
 {
     private ListView userListView;
-    private ArrayList<WriterAdapter> writerListAdapterList = new ArrayList<>();
-    private ArrayList<Writer> writers;
-    private BoardView writerBoardView;
+    private ArrayList<UserAdapter> userListAdapterList = new ArrayList<>();
+    private ArrayList<User> writers;
+    private BoardView userBoardView;
     private int mColumns;
     private int sCreatedItems = 0;
-    private Writer tmpWriterToChange;
+    private User tmpUserToChange;
 
     public static SetUpGroupsFragment newInstance()
     {
@@ -61,13 +61,13 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     {
         Toast.makeText(getActivity(), "Start - column: " + column + " row: " + row, Toast
                 .LENGTH_SHORT).show();
-        tmpWriterToChange = writerListAdapterList.get(column).getItemList().get(row).second;
+        tmpUserToChange = userListAdapterList.get(column).getItemList().get(row).second;
     }
 
     @Override
     public void onItemChangedColumn(int oldColumn, int newColumn)
     {
-        updateGroup(oldColumn, newColumn,tmpWriterToChange);
+        updateGroup(oldColumn, newColumn,tmpUserToChange);
 //        TextView numPages = (TextView) writerBoardView.getHeaderView(oldColumn).findViewById(R
 //                .id.writer_num_pages);
 //        numPages.setText("" + writerBoardView.getAdapter(oldColumn).getItemCount());
@@ -77,7 +77,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     }
 
-    private void updateGroup(int oldColumn, int newColumn, Writer tmpWriterToChange)
+    private void updateGroup(int oldColumn, int newColumn, User tmpWriterToChange)
     {
         //TODO Update database values here
     }
@@ -90,39 +90,39 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         {
             Toast.makeText(getActivity(), "End - column: " + toColumn + " row: " + toRow, Toast
                     .LENGTH_SHORT).show();
-            tmpWriterToChange=null;
+            tmpUserToChange=null;
         }
     }
 
-    private ArrayList<Pair<Long, Writer>> getWriters()
+    private ArrayList<Pair<Long, User>> getWriters()
     {
 
-        ArrayList<Pair<Long, Writer>> writerArray = new ArrayList<>();
+        ArrayList<Pair<Long, User>> userArray = new ArrayList<>();
         int addItems = 15;
         for (int i = 0; i < addItems; i++)
         {
-            Writer w = new Writer();
-            w.setName("Writer" + i);
-            w.setPages(new Random(System.currentTimeMillis() * i).nextInt(500));
-            long id = w.hashCode();
-            writerArray.add(new Pair<>(id, w));
+            User u = new User();
+            u.setName("Writer" + i);
+            u.setPages(new Random(System.currentTimeMillis() * i).nextInt(500));
+            long id = u.hashCode();
+            userArray.add(new Pair<>(id, u));
         }
-        return writerArray;
+        return userArray;
     }
 
     private void initFields(View currentView)
     {
-        writerListAdapterList.add(new WriterAdapter(getWriters(), R.layout.writer_column, R.id
+        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
                 .item_layout, true));
-        writerListAdapterList.add(new WriterAdapter(getWriters(), R.layout.writer_column, R.id
+        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
                 .item_layout, true));
         final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
         final View header2 = View.inflate(getActivity(), R.layout.writer_column_header, null);
-        writerBoardView = (BoardView) currentView.findViewById(R.id.init_groups_writer_board_view);
-        writerBoardView.setSnapToColumnsWhenScrolling(true);
-        writerBoardView.setSnapToColumnWhenDragging(true);
-        writerBoardView.setSnapDragItemToTouch(true);
-        writerBoardView.setBoardListener(this);
+        userBoardView = (BoardView) currentView.findViewById(R.id.init_groups_writer_board_view);
+        userBoardView.setSnapToColumnsWhenScrolling(true);
+        userBoardView.setSnapToColumnWhenDragging(true);
+        userBoardView.setSnapDragItemToTouch(true);
+        userBoardView.setBoardListener(this);
         ((TextView) header.findViewById(R.id.writer_name)).setText("Group #" + (mColumns + 1));
         ((TextView) header.findViewById(R.id.writer_num_pages)).setText("Number of Pages");
         ((TextView) header2.findViewById(R.id.writer_name)).setText("Group #" + (mColumns + 2));
@@ -149,8 +149,8 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 //            }
 //        });
 
-        writerBoardView.addColumnList(writerListAdapterList.get(0), header, false);
-        writerBoardView.addColumnList(writerListAdapterList.get(1), header2, false);
+        userBoardView.addColumnList(userListAdapterList.get(0), header, false);
+        userBoardView.addColumnList(userListAdapterList.get(1), header2, false);
     }
 
     public interface Callbacks

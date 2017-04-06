@@ -34,11 +34,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import csce.unt.writersgroup.model.Session;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -53,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
+    private Session session = new Session();
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -273,15 +279,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 }
                                 // Go to MainActivity
                                 // Changed by Satya
-                                Bundle bundle = new Bundle();
-                                Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
-                        //            bundle.putSerializable(vehicleId, vehicles.get(vehicleId));
-                        //            bundle.putSerializable(routeId, routes.get(routeId));
-                        //            bundle.putString("vehicleId", vehicleId);
-                        //            bundle.putString("routeId", routeId);
-                                mainActivityIntent.putExtras(bundle);
-                                startActivity(mainActivityIntent);
-                                finish();
+
+                                mDatabase.child("sessions").child(session.getSessionId()).addListenerForSingleValueEvent(
+                                        new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                session = dataSnapshot.getValue(Session.class);
+                                                Bundle bundle = new Bundle();
+                                                Intent intent = null;
+                                                if(session.getStarted().equals("true")){
+                                                    intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                }else{
+                                                    intent = new Intent(LoginActivity.this, WaitActivity.class);
+                                                }
+                                                bundle.putSerializable("session", session);
+                                                //            bundle.putSerializable(vehicleId, vehicles.get(vehicleId));
+                                                //            bundle.putSerializable(routeId, routes.get(routeId));
+                                                //            bundle.putString("vehicleId", vehicleId);
+                                                //            bundle.putString("routeId", routeId);
+                                                intent.putExtras(bundle);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        }
+                                );
                             } else {
                                 Toast.makeText(LoginActivity.this, "Sign In Failed",
                                         Toast.LENGTH_SHORT).show();
