@@ -23,4 +23,5 @@
     <string name="timer_end_button">end timer</string>
     <string name="sign_in_page_text">Enter number of pages</string>
     <string name="title_activity_wait">WaitActivity</string>
+    <string name="anchor_question">Would you like to be an anchor for the next 2 months?</string>
 </resources>

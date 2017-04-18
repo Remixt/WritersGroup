@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <TextView
         android:id="@+id/anchor_reminder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="44dp"
         android:layout_weight="1"
         android:ems="10"
         android:gravity="center"
-        android:inputType="none"
-        android:textIsSelectable="false"
-        android:text="Would you like to be an anchor for the next 2 months?"
+        android:text="@string/anchor_question"
         android:textSize="42sp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:layout_below="@id/toolbar"/>
 
     <LinearLayout
         android:id="@+id/anchor_buttons"
@@ -45,15 +45,14 @@
             android:textSize="42sp" />
     </LinearLayout>
 
-    <EditText
+    <TextView
         android:id="@+id/editText2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:layout_weight="1"
         android:ems="10"
         android:gravity="center"
-        android:inputType="none"
         android:textIsSelectable="false"
         android:text="@string/sign_in_page_text"
         android:textSize="42sp"

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity
             {
                 LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
                 anchor_buttons.setVisibility(View.GONE);
-                EditText anchor_reminder = (EditText) findViewById(R.id.anchor_reminder);
+                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
                 anchor_reminder.setVisibility(View.GONE);
             }
         });
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity
             {
                 LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
                 anchor_buttons.setVisibility(View.GONE);
-                EditText anchor_reminder = (EditText) findViewById(R.id.anchor_reminder);
+                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
                 anchor_reminder.setVisibility(View.GONE);
             }
         });
