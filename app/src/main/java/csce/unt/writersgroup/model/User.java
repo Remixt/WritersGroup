@@ -8,21 +8,13 @@ import java.io.Serializable;
 
 public class User implements Serializable
 {
+    private boolean isAnchor;
     private String userId;
     private String name;
     private String email;
     private String password;
     private int pages;
     private String anchor;
-
-    @Override
-    public String toString()
-    {
-        return "Writer{" +
-                "name='" + name + '\'' +
-                ", pages=" + pages +
-                '}';
-    }
 
     public User()
     {
@@ -42,9 +34,23 @@ public class User implements Serializable
         this.email = email;
     }
 
+    public User(String writerID, boolean isAnchor)
+    {
+        this.userId = writerID;
+        this.isAnchor = isAnchor;
+    }
+
     public User(String id)
     {
         this.userId = id;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + pages;
+        return result;
     }
 
     @Override
@@ -61,11 +67,22 @@ public class User implements Serializable
     }
 
     @Override
-    public int hashCode()
+    public String toString()
     {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + pages;
-        return result;
+        return "Writer{" +
+                "name='" + name + '\'' +
+                ", pages=" + pages +
+                '}';
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
     }
 
     public String getName()
@@ -73,14 +90,14 @@ public class User implements Serializable
         return name;
     }
 
-    public int getPages()
-    {
-        return pages;
-    }
-
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public int getPages()
+    {
+        return pages;
     }
 
     public void setPages(int pages)
@@ -88,20 +105,11 @@ public class User implements Serializable
         this.pages = pages;
     }
 
-
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }
