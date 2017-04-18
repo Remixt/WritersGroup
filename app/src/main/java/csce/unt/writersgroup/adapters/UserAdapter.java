@@ -56,12 +56,22 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
     {
         super.onBindViewHolder(holder, position);
         User user = mItemList.get(position).second;
-        holder.writerName.setText(user.getName());
-        holder.writerPages.setText(String.valueOf(user.getPages()));
-        if(user.getName().contains("1")){
-            holder.cardView.setCardBackgroundColor(Color.CYAN);
+        if (user != null)
+        {
+            holder.writerName.setText(user.getName());
+            holder.writerPages.setText(String.valueOf(user.getPages()));
+            if (user.isAnAnchor())
+            {
+                holder.cardView.setCardBackgroundColor(Color.CYAN);
+            }
+        }
+        else
+        {
+            holder.writerName.setText("Guest");
+            holder.writerPages.setText("0");
         }
         holder.itemView.setTag(mItemList.get(position));
+
     }
 
     class ViewHolder extends DragItemAdapter.ViewHolder

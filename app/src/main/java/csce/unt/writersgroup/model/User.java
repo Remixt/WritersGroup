@@ -8,41 +8,33 @@ import java.io.Serializable;
 
 public class User implements Serializable
 {
-    private boolean isAnchor;
-    private String userId;
+    private String uid;
     private String name;
     private String email;
     private String password;
     private int pages;
     private String anchor;
-
+    private int userType;
     public User()
     {
         //Default constructor to use with firebase
     }
-
     public User(String driverId, String name, String email)
     {
-        this.userId = driverId;
+        this.uid = driverId;
         this.name = name;
         this.email = email;
     }
 
     public User(String driverId, String email)
     {
-        this.userId = driverId;
+        this.uid = driverId;
         this.email = email;
-    }
-
-    public User(String writerID, boolean isAnchor)
-    {
-        this.userId = writerID;
-        this.isAnchor = isAnchor;
     }
 
     public User(String id)
     {
-        this.userId = id;
+        this.uid = id;
     }
 
     @Override
@@ -75,6 +67,16 @@ public class User implements Serializable
                 '}';
     }
 
+    public String getAnchor()
+    {
+        return anchor;
+    }
+
+    public void setAnchor(String anchor)
+    {
+        this.anchor = anchor;
+    }
+
     public String getEmail()
     {
         return email;
@@ -105,11 +107,28 @@ public class User implements Serializable
         this.pages = pages;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUid()
+    {
+        return uid;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUid(String uid)
+    {
+        this.uid = uid;
+    }
+
+    public int getUserType()
+    {
+        return userType;
+    }
+
+    public void setUserType(int userType)
+    {
+        this.userType = userType;
+    }
+
+    public boolean isAnAnchor()
+    {
+        return getAnchor().toLowerCase().equals("true");
     }
 }
