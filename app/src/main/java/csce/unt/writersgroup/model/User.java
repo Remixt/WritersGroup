@@ -14,6 +14,16 @@ public class User implements Serializable
     private String password;
     private int pages;
     private String anchor;
+    private String userType;
+
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
 
     @Override
     public String toString()
@@ -88,6 +98,21 @@ public class User implements Serializable
         this.pages = pages;
     }
 
+    public String getAnchor() {
+        return anchor;
+    }
+
+    public void setAnchor(String anchor) {
+        this.anchor = anchor;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getUserId() {
         return userId;

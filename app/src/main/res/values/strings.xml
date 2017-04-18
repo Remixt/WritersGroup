@@ -2,10 +2,21 @@
     <string name="app_name">WritersGroup</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_name">Name</string>
+
+    <string name="anchor">Anchor</string>
+    <string name="notAnAnchor">Not an Anchor</string>
+
+    <string name="president">President</string>
+    <string name="officer">Officer</string>
+    <string name="regular">Regular</string>
+
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_up">Sign Up</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_name">Enter Name</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
@@ -23,4 +34,5 @@
     <string name="timer_end_button">end timer</string>
     <string name="sign_in_page_text">Enter number of pages</string>
     <string name="title_activity_wait">WaitActivity</string>
+    <string name="title_activity_sign_up">Sign in</string>
 </resources>
