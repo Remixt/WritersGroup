@@ -3,18 +3,24 @@ package csce.unt.writersgroup;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import csce.unt.writersgroup.adapters.UserAdapter;
@@ -27,13 +33,62 @@ import csce.unt.writersgroup.model.User;
 public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemClickListener,
         BoardView.BoardListener
 {
+    SetGroupsActivity activity;
     private ListView userListView;
-    private ArrayList<UserAdapter> userListAdapterList = new ArrayList<>();
-    private ArrayList<User> writers;
+    private HashMap<String, User> writers;
+
+    private HashMap<String, UserAdapter> userListAdapterList = new HashMap<>();
     private BoardView userBoardView;
     private int mColumns;
     private int sCreatedItems = 0;
     private User tmpUserToChange;
+    private ValueEventListener groupValueEventListener = new ValueEventListener()
+    {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            Log.d(getClass().getSimpleName(), dataSnapshot.getKey() + ": " + dataSnapshot
+                    .getValue().toString());
+            for (DataSnapshot child : dataSnapshot.getChildren())
+            {
+                Log.d(getClass().getSimpleName(), child.getKey());
+                String users = ((HashMap) child.getValue()).get("users").toString();
+                String anchors = ((HashMap) child.getValue()).get("anchors").toString();
+                ArrayList<Pair<Long, User>> userPairList = new ArrayList<>();
+
+                if (users != null)
+                {
+                    String[] userAry = users.split(",");
+                    for (String user : userAry)
+                    {
+                        userPairList.add(new Pair<>((long) user.hashCode(), getWriterMap().get
+                                (user.trim())));
+                    }
+                }
+                if (anchors != null)
+                {
+                    String[] anchorAry = anchors.split(",");
+                    for (String user : anchorAry)
+                    {
+                        userPairList.add(new Pair<>((long) user.hashCode(), getWriterMap().get
+                                (user.trim())));
+                    }
+                }
+                userListAdapterList.put(userListAdapterList.size() + "", new UserAdapter
+                        (userPairList, R.layout
+                                .writer_column, R.id.item_layout, true));
+
+            }
+            updateBoardView();
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError)
+        {
+
+        }
+    };
+    private Button startSession;
 
     public static SetUpGroupsFragment newInstance()
     {
@@ -47,6 +102,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     {
         View currentView = inflater.inflate(R.layout.fragment_init_groups, container, false);
         initFields(currentView);
+        initListeners();
         return currentView;
     }
 
@@ -61,13 +117,13 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     {
         Toast.makeText(getActivity(), "Start - column: " + column + " row: " + row, Toast
                 .LENGTH_SHORT).show();
-        tmpUserToChange = userListAdapterList.get(column).getItemList().get(row).second;
+        tmpUserToChange = userListAdapterList.get("" + column).getItemList().get(row).second;
     }
 
     @Override
     public void onItemChangedColumn(int oldColumn, int newColumn)
     {
-        updateGroup(oldColumn, newColumn,tmpUserToChange);
+        updateGroup(oldColumn, newColumn, tmpUserToChange);
 //        TextView numPages = (TextView) writerBoardView.getHeaderView(oldColumn).findViewById(R
 //                .id.writer_num_pages);
 //        numPages.setText("" + writerBoardView.getAdapter(oldColumn).getItemCount());
@@ -77,12 +133,6 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     }
 
-    private void updateGroup(int oldColumn, int newColumn, User tmpWriterToChange)
-    {
-        //TODO Update database values here
-    }
-
-
     @Override
     public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow)
     {
@@ -90,13 +140,21 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         {
             Toast.makeText(getActivity(), "End - column: " + toColumn + " row: " + toRow, Toast
                     .LENGTH_SHORT).show();
-            tmpUserToChange=null;
+            tmpUserToChange = null;
         }
+    }
+
+    public HashMap<String, User> getWriterMap()
+    {
+        if (writers == null)
+        {
+            writers = new HashMap<>();
+        }
+        return writers;
     }
 
     private ArrayList<Pair<Long, User>> getWriters()
     {
-
         ArrayList<Pair<Long, User>> userArray = new ArrayList<>();
         int addItems = 15;
         for (int i = 0; i < addItems; i++)
@@ -112,10 +170,11 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private void initFields(View currentView)
     {
-        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
-                .item_layout, true));
-        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
-                .item_layout, true));
+//        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
+//                .item_layout, true));
+//        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
+//                .item_layout, true));
+        activity = (SetGroupsActivity) getActivity();
         final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
         final View header2 = View.inflate(getActivity(), R.layout.writer_column_header, null);
         userBoardView = (BoardView) currentView.findViewById(R.id.init_groups_writer_board_view);
@@ -123,6 +182,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         userBoardView.setSnapToColumnWhenDragging(true);
         userBoardView.setSnapDragItemToTouch(true);
         userBoardView.setBoardListener(this);
+        startSession = (Button) currentView.findViewById(R.id.button_start_session);
         ((TextView) header.findViewById(R.id.writer_name)).setText("Group #" + (mColumns + 1));
         ((TextView) header.findViewById(R.id.writer_num_pages)).setText("Number of Pages");
         ((TextView) header2.findViewById(R.id.writer_name)).setText("Group #" + (mColumns + 2));
@@ -149,8 +209,80 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 //            }
 //        });
 
-        userBoardView.addColumnList(userListAdapterList.get(0), header, false);
-        userBoardView.addColumnList(userListAdapterList.get(1), header2, false);
+//        userBoardView.addColumnList(userListAdapterList.get(0), header, false);
+//        userBoardView.addColumnList(userListAdapterList.get(1), header2, false);
+    }
+
+    private void initListeners()
+    {
+
+        activity.mDatabase.child("sessions").child(activity.session.getSessionId())
+                .addListenerForSingleValueEvent(new ValueEventListener()
+
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        String groups = dataSnapshot.child("groups").getValue().toString();
+                        for (String group : groups.split(","))
+                        {
+                            activity.mDatabase.child("groups").addListenerForSingleValueEvent
+                                    (groupValueEventListener);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
+        activity.mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren())
+                {
+                    User u = snapshot.getValue(User.class);
+                    if (u != null)
+                    {
+                        getWriterMap().put(u.getUid(), u);
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+        startSession.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                //Set current session started=true
+                //go to timer screen
+            }
+        });
+    }
+
+    private void updateBoardView()
+    {
+        for (String key : userListAdapterList.keySet())
+        {
+            final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
+            ((TextView) header.findViewById(R.id.group_id)).setText(key);
+            userBoardView.addColumnList(userListAdapterList.get(key), header, false);
+        }
+    }
+
+    private void updateGroup(int oldColumn, int newColumn, User tmpWriterToChange)
+    {
+        //TODO Update database values here
     }
 
     public interface Callbacks

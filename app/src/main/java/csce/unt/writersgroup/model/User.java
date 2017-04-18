@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class User implements Serializable
 {
-    private String userId;
+    private String uid;
     private String name;
     private String email;
     private String password;
@@ -16,45 +16,39 @@ public class User implements Serializable
     private String anchor;
     private String userType;
 
-
-    public String getUserType() {
-        return userType;
-    }
-
     public void setUserType(String userType) {
         this.userType = userType;
     }
 
-    @Override
-    public String toString()
-    {
-        return "Writer{" +
-                "name='" + name + '\'' +
-                ", pages=" + pages +
-                '}';
-    }
 
     public User()
     {
         //Default constructor to use with firebase
     }
-
     public User(String driverId, String name, String email)
     {
-        this.userId = driverId;
+        this.uid = driverId;
         this.name = name;
         this.email = email;
     }
 
     public User(String driverId, String email)
     {
-        this.userId = driverId;
+        this.uid = driverId;
         this.email = email;
     }
 
     public User(String id)
     {
-        this.userId = id;
+        this.uid = id;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + pages;
+        return result;
     }
 
     @Override
@@ -71,11 +65,22 @@ public class User implements Serializable
     }
 
     @Override
-    public int hashCode()
+    public String toString()
     {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + pages;
-        return result;
+        return "Writer{" +
+                "name='" + name + '\'' +
+                ", pages=" + pages +
+                '}';
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
     }
 
     public String getName()
@@ -83,20 +88,21 @@ public class User implements Serializable
         return name;
     }
 
-    public int getPages()
-    {
-        return pages;
-    }
-
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public int getPages()
+    {
+        return pages;
     }
 
     public void setPages(int pages)
     {
         this.pages = pages;
     }
+
 
     public String getAnchor() {
         return anchor;
@@ -112,21 +118,26 @@ public class User implements Serializable
 
     public void setPassword(String password) {
         this.password = password;
+
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUid()
+    {
+        return uid;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUid(String uid)
+    {
+        this.uid = uid;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserType()
+    {
+        return userType;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public boolean isAnAnchor()
+    {
+        return getAnchor().toLowerCase().equals("true");
     }
 }

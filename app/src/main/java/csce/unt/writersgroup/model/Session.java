@@ -10,6 +10,8 @@ import java.util.Date;
 
 public class Session implements Serializable
 {
+    public static final String SESSION_STARTED = "true";
+    public static final String SESSION_NOT_STARTED = "false";
     private String sessionId;
     private String groups;
     private String started;
@@ -17,16 +19,8 @@ public class Session implements Serializable
     public Session()
     {
         this.sessionId = new SimpleDateFormat("MMddyyyy").format(new Date(System.currentTimeMillis()));;
-        this.started = "false";
+        this.started = SESSION_NOT_STARTED;
         this.groups = "";
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
     }
 
     public String getGroups() {
@@ -35,6 +29,16 @@ public class Session implements Serializable
 
     public void setGroups(String groups) {
         this.groups = groups;
+    }
+
+    public String getSessionId()
+    {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId)
+    {
+        this.sessionId = sessionId;
     }
 
     public String getStarted() {

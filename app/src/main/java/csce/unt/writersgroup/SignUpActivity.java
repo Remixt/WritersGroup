@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -36,6 +37,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import csce.unt.writersgroup.model.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -252,13 +255,16 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isComplete()) {
                             String email = task.getResult().getUser().getEmail();
-                            String username;
-                            if (email.contains("@")) {
-                                username = email.split("@")[0];
-                            } else {
-                                username = email;
-                            }
-                            System.out.println(username);
+                            User user = new User();
+                            user.setEmail(email);
+                            user.setName(name);
+                            user.setPages(0);
+                            user.setAnchor(String.valueOf(anchorType));
+                            user.setUserType(userType);
+                            user.setUid(task.getResult().getUser().getUid());
+                            mFirebase.child("users").setValue(task.getResult().getUser().getUid());
+                            mFirebase.child("users").child(task.getResult().getUser().getUid()).setValue(user);
+                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                         }
                     }
                 });

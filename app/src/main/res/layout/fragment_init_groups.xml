@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:showIn="@layout/activity_set_groups">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Drag and drop users to groups" />
     <com.woxthebox.draglistview.BoardView
+        android:id="@+id/init_groups_writer_board_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/init_groups_writer_board_view"
         >
 
     </com.woxthebox.draglistview.BoardView>
@@ -17,4 +21,10 @@
         android:id="@+id/init_groups_user_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/button_start_session"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Session" />
 </LinearLayout>

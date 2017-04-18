@@ -78,6 +78,14 @@
                 android:text="@string/action_sign_up"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/sign_in_as_officer"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sign in as President"
+                android:textStyle="bold" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

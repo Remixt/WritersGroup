@@ -41,6 +41,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import csce.unt.writersgroup.model.Session;
@@ -57,8 +58,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-
-    private Session session = new Session();
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -66,12 +65,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-
     /**
      * Firebase root URL
      */
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
-
+    private Session session = new Session();
     /**
      * Firebase Databse reference,
      * Auth reference, and Firebase reference
@@ -114,9 +112,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setText("writersgroupunt2017");
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
+            {
+                if (id == R.id.login || id == EditorInfo.IME_NULL)
+                {
+                    attemptLogin(false);
                     return true;
                 }
                 return false;
@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptLogin(false);
             }
         });
 
@@ -141,6 +141,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        Button officerSignIn = (Button) findViewById(R.id.sign_in_as_officer);
+        officerSignIn.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                attemptLogin(true);
+            }
+        });
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
@@ -213,8 +222,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
+     *
+     * @param isOfficer
      */
-    private void attemptLogin()
+    private void attemptLogin(final boolean isOfficer)
     {
         if (mAuthTask != null)
         {
@@ -270,50 +281,93 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
             mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+                    {
                         @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
+                        public void onComplete(@NonNull Task<AuthResult> task)
+                        {
                             showProgress(false);
-                            if (task.isSuccessful()) {
+                            if (task.isSuccessful())
+                            {
                                 String email = task.getResult().getUser().getEmail();
                                 String username;
-                                if (email.contains("@")) {
+                                if (email.contains("@"))
+                                {
                                     username = email.split("@")[0];
-                                } else {
+                                }
+                                else
+                                {
                                     username = email;
                                 }
                                 // Go to MainActivity
                                 // Changed by Satya
 
-                                mDatabase.child("sessions").child(session.getSessionId()).addListenerForSingleValueEvent(
-                                        new ValueEventListener() {
+                                final DatabaseReference sessionsReference = mDatabase.child
+                                        ("sessions");
+                                sessionsReference.addListenerForSingleValueEvent(
+
+                                        new ValueEventListener()
+                                        {
                                             @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                session = dataSnapshot.getValue(Session.class);
+                                            public void onDataChange(DataSnapshot
+                                                                             dataSnapshot)
+                                            {
+                                                Session dbSession = null;
+                                                for (DataSnapshot child : dataSnapshot
+                                                        .getChildren())
+                                                {
+                                                    Session s = child.getValue(Session.class);
+                                                    if (s != null && s.getSessionId().equals
+                                                            (session.getSessionId()))
+                                                    {
+                                                        dbSession = s;
+                                                        break;
+                                                    }
+                                                }
+                                                if (dbSession != null)
+                                                {
+                                                    session = dbSession;
+                                                }
+                                                else
+                                                {
+                                                    HashMap<String, Object> map = new
+                                                            HashMap<>();
+                                                    map.put(session.getSessionId(),
+                                                            session);
+                                                    sessionsReference.updateChildren(map);
+                                                }
                                                 Bundle bundle = new Bundle();
                                                 Intent intent = null;
-                                                if(session.getStarted().equals("true")){
-                                                    intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                }else{
-                                                    intent = new Intent(LoginActivity.this, WaitActivity.class);
+                                                if (session != null && session.getStarted()
+                                                        .equals(Session.SESSION_STARTED))
+                                                {
+                                                    intent = new Intent(LoginActivity.this,
+                                                            (isOfficer ? SetGroupsActivity.class
+                                                                    : MainActivity.class));
+                                                }
+                                                else
+                                                {
+                                                    intent = new Intent(LoginActivity.this,
+                                                            (isOfficer ? SetGroupsActivity.class
+                                                                    : WaitActivity.class));
                                                 }
                                                 bundle.putSerializable("session", session);
-                                                //            bundle.putSerializable(vehicleId, vehicles.get(vehicleId));
-                                                //            bundle.putSerializable(routeId, routes.get(routeId));
-                                                //            bundle.putString("vehicleId", vehicleId);
-                                                //            bundle.putString("routeId", routeId);
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
                                                 finish();
                                             }
 
                                             @Override
-                                            public void onCancelled(DatabaseError databaseError) {
+                                            public void onCancelled(DatabaseError
+                                                                            databaseError)
+                                            {
 
                                             }
                                         }
                                 );
-                            } else {
+                            }
+                            else
+                            {
                                 Toast.makeText(LoginActivity.this, "Sign In Failed",
                                         Toast.LENGTH_SHORT).show();
                             }
@@ -500,10 +554,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
         }
 
-        private String usernameFromEmail(String email) {
-            if (email.contains("@")) {
+        private String usernameFromEmail(String email)
+        {
+            if (email.contains("@"))
+            {
                 return email.split("@")[0];
-            } else {
+            }
+            else
+            {
                 return email;
             }
         }
