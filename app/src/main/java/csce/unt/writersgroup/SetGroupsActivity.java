@@ -26,9 +26,8 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
     public Session session;
     public DatabaseReference mDatabase = null;
+    public Firebase mFirebase = null;
     private FirebaseAuth mAuth = null;
-    private Firebase mFirebase = null;
-
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs)

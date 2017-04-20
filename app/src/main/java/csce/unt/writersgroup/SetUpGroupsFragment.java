@@ -14,6 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -41,17 +45,18 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     private BoardView userBoardView;
     private int mColumns;
     private int sCreatedItems = 0;
+    private HashMap<Integer, String> columnToGroupMap = new HashMap<>();
     private User tmpUserToChange;
     private ValueEventListener groupValueEventListener = new ValueEventListener()
     {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
-            Log.d(getClass().getSimpleName(), dataSnapshot.getKey() + ": " + dataSnapshot
+            Log.v("DataSnapShotKey", dataSnapshot.getKey() + ": " + dataSnapshot
                     .getValue().toString());
             for (DataSnapshot child : dataSnapshot.getChildren())
             {
-                Log.d(getClass().getSimpleName(), child.getKey());
+                Log.v("ChildKey", child.getKey());
                 String users = ((HashMap) child.getValue()).get("users").toString();
                 String anchors = ((HashMap) child.getValue()).get("anchors").toString();
                 ArrayList<Pair<Long, User>> userPairList = new ArrayList<>();
@@ -61,8 +66,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                     String[] userAry = users.split(",");
                     for (String user : userAry)
                     {
-                        userPairList.add(new Pair<>((long) user.hashCode(), getWriterMap().get
-                                (user.trim())));
+                        User userObj = getWriterMap().get
+                                (user.trim());
+                        userObj.setAnchor("false");
+                        userPairList.add(new Pair<>((long) user.hashCode(), userObj));
                     }
                 }
                 if (anchors != null)
@@ -70,10 +77,13 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                     String[] anchorAry = anchors.split(",");
                     for (String user : anchorAry)
                     {
-                        userPairList.add(new Pair<>((long) user.hashCode(), getWriterMap().get
-                                (user.trim())));
+                        User anchorObj = getWriterMap().get
+                                (user.trim());
+                        anchorObj.setAnchor("true");
+                        userPairList.add(new Pair<>((long) user.hashCode(), anchorObj));
                     }
                 }
+                columnToGroupMap.put(userListAdapterList.size(), child.getKey());
                 userListAdapterList.put(userListAdapterList.size() + "", new UserAdapter
                         (userPairList, R.layout
                                 .writer_column, R.id.item_layout, true));
@@ -282,7 +292,66 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private void updateGroup(int oldColumn, int newColumn, User tmpWriterToChange)
     {
-        //TODO Update database values here
+        final String oldGroup = columnToGroupMap.get(oldColumn);
+        final String newGroup = columnToGroupMap.get(newColumn);
+
+        Firebase groups = activity.mFirebase.child("groups");
+        Firebase oldGroupReference = activity.mFirebase.child("groups").child(oldGroup);
+        Firebase newGroupReference = activity.mFirebase.child("groups").child(newGroup);
+        HashMap<String, Object> oldGroupMap = new HashMap<>();
+        HashMap<String, Object> newGroupMap = new HashMap<>();
+        for (Pair userPair : userListAdapterList.get(oldColumn + "").getItemList())
+        {
+            if (!((User) userPair.second).getUid().equals(tmpWriterToChange))
+            {
+                oldGroupMap.put(((User) userPair.second).getUid(), (User) userPair.second);
+            }
+        }
+        for (Pair userPair : userListAdapterList.get(oldColumn + "").getItemList())
+        {
+            if (!((User) userPair.second).getUid().equals(tmpWriterToChange)) //this check cleans
+            // up some of the bad data we have right now for testing, can be removed later as we
+            // won't have users duplicated in a group
+            {
+                newGroupMap.put(((User) userPair.second).getUid(), (User) userPair.second);
+            }
+        }
+        newGroupMap.put(tmpWriterToChange.getUid(), tmpWriterToChange);  //can be taken out along
+        // with the above if statement later
+        oldGroupReference.setValue(oldGroupMap);
+        newGroupReference.setValue(newGroupMap);
+        oldGroupReference.runTransaction(new Transaction.Handler()
+        {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData)
+            {
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean b, com.firebase.client
+                    .DataSnapshot dataSnapshot)
+            {
+
+            }
+        });
+        groups.runTransaction(new Transaction.Handler()
+        {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData)
+            {
+                mutableData.child(oldGroup);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean b, com.firebase.client
+                    .DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getValue();
+            }
+        });
+
     }
 
     public interface Callbacks

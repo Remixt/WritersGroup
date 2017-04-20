@@ -14,24 +14,20 @@ public class User implements Serializable
     private String password;
     private int pages;
     private String anchor;
-    private String userType;
-
-    public void setUserType(String userType) {
-        this.userType = userType;
-    }
-
+    private long userType;
 
     public User()
     {
         //Default constructor to use with firebase
     }
+
+
     public User(String driverId, String name, String email)
     {
         this.uid = driverId;
         this.name = name;
         this.email = email;
     }
-
     public User(String driverId, String email)
     {
         this.uid = driverId;
@@ -73,6 +69,16 @@ public class User implements Serializable
                 '}';
     }
 
+    public String getAnchor()
+    {
+        return anchor;
+    }
+
+    public void setAnchor(String anchor)
+    {
+        this.anchor = anchor;
+    }
+
     public String getEmail()
     {
         return email;
@@ -103,15 +109,6 @@ public class User implements Serializable
         this.pages = pages;
     }
 
-
-    public String getAnchor() {
-        return anchor;
-    }
-
-    public void setAnchor(String anchor) {
-        this.anchor = anchor;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -131,9 +128,14 @@ public class User implements Serializable
         this.uid = uid;
     }
 
-    public String getUserType()
+    public long getUserType()
     {
         return userType;
+    }
+
+    public void setUserType(long userType)
+    {
+        this.userType = userType;
     }
 
     public boolean isAnAnchor()

@@ -2,7 +2,6 @@ package csce.unt.writersgroup.adapters;
 
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +46,7 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
     @Override
     public long getItemId(int position)
     {
-        Log.d("ItemID", position + ": " + mItemList.get(position).first);
+//        Log.d("ItemID", position + ": " + mItemList.get(position).first);
         return mItemList.get(position).first;
     }
 

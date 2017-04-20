@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -26,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +38,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import csce.unt.writersgroup.model.User;
@@ -64,7 +67,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
      * Firebase root URL
      */
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
-
+    String name = null;
     /**
      * Firebase Databse reference,
      * Auth reference, and Firebase reference
@@ -72,8 +75,6 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     private DatabaseReference mDatabase = null;
     private FirebaseAuth mAuth = null;
     private Firebase mFirebase = null;
-
-    String name = null;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -86,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
     private RadioGroup radioAnchorType;
     private RadioGroup radioUserType;
     private boolean anchorType = false;
-    private String userType = "2";
+    private long userType = 2;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -131,74 +132,6 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    public void onAnchorRadioButtonClicked(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
-
-        // Check which radio button was clicked
-        switch(view.getId()) {
-            case R.id.radio_anchor:
-                if (checked)
-                    anchorType = true;
-                    break;
-            case R.id.radio_notAnAchor:
-                if (checked)
-                    anchorType = false;
-                    break;
-        }
-    }
-
-    public void onUserRadioButtonClicked(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
-
-        // Check which radio button was clicked
-        switch(view.getId()) {
-            case R.id.radio_user_president:
-                if (checked)
-                    userType = "0";
-                break;
-            case R.id.radio_user_officer:
-                if (checked)
-                    userType = "1";
-                break;
-            case R.id.radio_user_regular:
-                if (checked)
-                    userType = "2";
-                break;
-        }
-    }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
     /**
      * Callback received when a permissions request has been completed.
      */
@@ -212,77 +145,52 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         }
     }
 
-    private void signUp(){
-        boolean cancel = false;
-        View focusView = null;
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
+    {
+        return new CursorLoader(this,
+                // Retrieve data rows for the device user's 'profile' contact.
+                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
+                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
 
-        final String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-        name = mNameView.getText().toString();
+                // Select only email addresses.
+                ContactsContract.Contacts.Data.MIMETYPE +
+                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
+                .CONTENT_ITEM_TYPE},
 
-        if (TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
+                // Show primary email addresses first. Note that there won't be
+                // a primary email address if the user hasn't specified one.
+                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor)
+    {
+        List<String> emails = new ArrayList<>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast())
+        {
+            emails.add(cursor.getString(ProfileQuery.ADDRESS));
+            cursor.moveToNext();
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+        addEmailsToAutoComplete(emails);
+    }
 
-        if (TextUtils.isEmpty(name)) {
-            mNameView.setError(getString(R.string.error_invalid_name));
-            focusView = mNameView;
-            cancel = true;
-        }
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader)
+    {
 
+    }
 
-//        Task<AuthResult> authResultTask =  mAuth.createUserWithEmailAndPassword(email, password);
-//        if(authResultTask != null){
-//            System.out.println(mAuth.getCurrentUser().getUid());
-//        }
+    private void addEmailsToAutoComplete(List<String> emailAddressCollection)
+    {
+        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(SignUpActivity.this,
+                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isComplete()) {
-                            String email = task.getResult().getUser().getEmail();
-                            User user = new User();
-                            user.setEmail(email);
-                            user.setName(name);
-                            user.setPages(0);
-                            user.setAnchor(String.valueOf(anchorType));
-                            user.setUserType(userType);
-                            user.setUid(task.getResult().getUser().getUid());
-                            mFirebase.child("users").setValue(task.getResult().getUser().getUid());
-                            mFirebase.child("users").child(task.getResult().getUser().getUid()).setValue(user);
-                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                        }
-                    }
-                });
-
-//        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-//            @Override
-//            public void onSuccess(AuthResult authResult) {
-//                User user = new User();
-//                user.setEmail(email);
-//                user.setName(name);
-//                user.setPages(0);
-//                user.setAnchor(String.valueOf(anchorType));
-//                user.setUserType(userType);
-//                user.setUserId(authResult.getUser().getUid());
-//                mFirebase.child("users").setValue(user);
-//            }
-//        });
-
+        mEmailView.setAdapter(adapter);
     }
 
     /**
@@ -347,6 +255,88 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         return password.length() > 4;
     }
 
+    private boolean mayRequestContacts()
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+        {
+            return true;
+        }
+        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED)
+        {
+            return true;
+        }
+        if (shouldShowRequestPermissionRationale(READ_CONTACTS))
+        {
+            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener()
+                    {
+                        @Override
+                        @TargetApi(Build.VERSION_CODES.M)
+                        public void onClick(View v)
+                        {
+                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+                        }
+                    });
+        }
+        else
+        {
+            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+        }
+        return false;
+    }
+
+    public void onAnchorRadioButtonClicked(View view)
+    {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch (view.getId())
+        {
+            case R.id.radio_anchor:
+                if (checked)
+                    anchorType = true;
+                break;
+            case R.id.radio_notAnAchor:
+                if (checked)
+                    anchorType = false;
+                break;
+        }
+    }
+
+    public void onUserRadioButtonClicked(View view)
+    {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch (view.getId())
+        {
+            case R.id.radio_user_president:
+                if (checked)
+                    userType = 0;
+                break;
+            case R.id.radio_user_officer:
+                if (checked)
+                    userType = 1;
+                break;
+            case R.id.radio_user_regular:
+                if (checked)
+                    userType = 2;
+                break;
+        }
+    }
+
+    private void populateAutoComplete()
+    {
+        if (!mayRequestContacts())
+        {
+            return;
+        }
+
+        getLoaderManager().initLoader(0, null, this);
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */
@@ -383,39 +373,117 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
+    private void signUp()
+    {
+        boolean cancel = false;
+        View focusView = null;
 
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
+        final String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        name = mNameView.getText().toString();
 
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
+        if (TextUtils.isEmpty(password))
+        {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
         }
 
-        addEmailsToAutoComplete(emails);
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email))
+        {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        }
+        else if (!isEmailValid(email))
+        {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(name))
+        {
+            mNameView.setError(getString(R.string.error_invalid_name));
+            focusView = mNameView;
+            cancel = true;
+        }
+
+
+//        Task<AuthResult> authResultTask =  mAuth.createUserWithEmailAndPassword(email, password);
+//        if(authResultTask != null){
+//            System.out.println(mAuth.getCurrentUser().getUid());
+//        }
+        final DatabaseReference userReference = mDatabase.child
+                ("users");
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task)
+                    {
+                        if (task.isComplete())
+                        {
+                            try
+                            {
+                                String email = task.getResult().getUser().getEmail();
+                                User user = new User();
+                                user.setEmail(email);
+                                user.setName(name);
+                                user.setPages(0);
+                                user.setAnchor(String.valueOf(anchorType));
+                                user.setUserType(userType);
+                                user.setUid(task.getResult().getUser().getUid());
+                                HashMap<String, Object> map = new
+                                        HashMap<>();
+                                map.put(task.getResult().getUser().getUid(),
+                                        user);
+                                userReference.updateChildren(map);
+                                Bundle b = new Bundle();
+                                b.putSerializable("argUser", user);
+                                startActivity(new Intent(SignUpActivity.this, LoginActivity
+                                        .class).putExtras(b));
+                            } catch (Exception ex)
+                            {
+                                Log.e(getClass().getSimpleName(), "Error during DB sign up", ex);
+                                if (ex.getCause().getMessage().equals("The email address is " +
+                                        "already in use by another account."))
+                                {
+                                    mEmailView.setError("Email In Use");
+                                    Toast.makeText(SignUpActivity.this, "Email Already Exists",
+                                            Toast.LENGTH_SHORT).show();
+
+                                }
+                                else
+                                {
+                                    Toast.makeText(SignUpActivity.this, "Your account could not " +
+                                            "be created", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }
+                        }
+                    }
+                });
+
+//        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new
+// OnSuccessListener<AuthResult>() {
+//            @Override
+//            public void onSuccess(AuthResult authResult) {
+//                User user = new User();
+//                user.setEmail(email);
+//                user.setName(name);
+//                user.setPages(0);
+//                user.setAnchor(String.valueOf(anchorType));
+//                user.setUserType(userType);
+//                user.setUserId(authResult.getUser().getUid());
+//                mFirebase.child("users").setValue(user);
+//            }
+//        });
+
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -425,16 +493,6 @@ public class SignUpActivity extends AppCompatActivity implements LoaderCallbacks
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
-    }
-
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(SignUpActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
     }
 
     /**

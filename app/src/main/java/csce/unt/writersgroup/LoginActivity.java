@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import csce.unt.writersgroup.model.Session;
+import csce.unt.writersgroup.model.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -95,6 +96,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Bundle bundle = getIntent().getExtras();
+
 //        FirebaseApp.initializeApp(this);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -122,7 +125,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
-
+        if (bundle != null && bundle.containsKey("argUser"))
+        {
+            mEmailView.setText(((User) bundle.get("argUser")).getEmail());
+            mPasswordView.setText("");
+            mPasswordView.requestFocus();
+        }
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
