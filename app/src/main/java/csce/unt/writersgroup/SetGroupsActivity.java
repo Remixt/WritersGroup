@@ -18,6 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import csce.unt.writersgroup.model.Session;
 
 /**
@@ -73,6 +76,15 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new WritersGroupNavigationItemListener
                 (findViewById(android.R.id.content)));
+    }
+
+    public void startSession()
+    {
+        session.setStarted(Session.SESSION_STARTED);
+        Map<String, Object> sessionMap = new HashMap<>();
+        sessionMap.put("started", session.getStarted());
+        mDatabase.child("sessions").child(session.getSessionId()).child("started").setValue
+                (session.getStarted());
     }
 
     private void switchFragment(String initFragment)

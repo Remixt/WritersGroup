@@ -458,8 +458,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
             @Override
             public void onClick(View v)
             {
-                //Set current session started=true
-                //go to timer screen
+                activity.startSession();
             }
         });
         createGroup.setOnClickListener(new View.OnClickListener()
