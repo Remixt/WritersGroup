@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="csce.unt.writersgroup" >
+<manifest package="csce.unt.writersgroup"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".LoginActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,6 +26,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -34,16 +36,19 @@
             android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".SetGroupsActivity"
+            android:configChanges="keyboardHidden|orientation"
             android:label="Set Up Groups"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity
             android:name=".WaitActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wait"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
         <activity
             android:name=".SignUpActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_sign_up" >
         </activity>
     </application>

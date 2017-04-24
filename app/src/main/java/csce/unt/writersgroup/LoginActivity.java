@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +35,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Firebase root URL
      */
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
-    private Session session = new Session();
+    private Session session;
     /**
      * Firebase Databse reference,
      * Auth reference, and Firebase reference
@@ -90,6 +92,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -226,6 +229,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
+    private void addUserToSession(DatabaseReference sessionReference, Session session) throws
+            Exception
+    {
+        if (currentUser == null)
+        {
+            throw new Exception("Error adding user to session.  currentUser is null");
+        }
+        if (session.getUsers() == null)
+        {
+            session.setUsers(new HashMap<String, Object>());
+        }
+        if (!session.getUsers().containsKey(currentUser.getUid()))
+        {
+            session.getUsers().put(currentUser.getUid(), currentUser);
+        }
+        sessionReference.child(session.getSessionId()).child("users").updateChildren(session.getUsers());
+
+    }
+
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -297,8 +319,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             showProgress(false);
                             if (task.isSuccessful())
                             {
-                                String email = task.getResult().getUser().getEmail();
-                                String username;
+                                session = new Session();
+                                session.setSessionId(Session.generateNewSessionID());
+                                final String email = task.getResult().getUser().getEmail();
+                                final String username;
                                 if (email.contains("@"))
                                 {
                                     username = email.split("@")[0];
@@ -307,72 +331,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 {
                                     username = email;
                                 }
-                                // Go to MainActivity
-                                // Changed by Satya
+                                mDatabase.child("users").orderByChild("email").equalTo(email)
+                                        .addChildEventListener(new ChildEventListener()
+                                {
+                                    @Override
+                                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
+                                    {
+                                        currentUser = dataSnapshot.getValue(User.class);
+                                        finishLogIn(isOfficer);
+                                    }
 
-                                final DatabaseReference sessionsReference = mDatabase.child
-                                        ("sessions");
-                                sessionsReference.addListenerForSingleValueEvent(
+                                    @Override
+                                    public void onChildChanged(DataSnapshot dataSnapshot, String s)
+                                    {
+                                    }
 
-                                        new ValueEventListener()
-                                        {
-                                            @Override
-                                            public void onDataChange(DataSnapshot
-                                                                             dataSnapshot)
-                                            {
-                                                Session dbSession = null;
-                                                for (DataSnapshot child : dataSnapshot
-                                                        .getChildren())
-                                                {
-                                                    Session s = child.getValue(Session.class);
-                                                    if (s != null && s.getSessionId().equals
-                                                            (session.getSessionId()))
-                                                    {
-                                                        dbSession = s;
-                                                        break;
-                                                    }
-                                                }
-                                                if (dbSession != null)
-                                                {
-                                                    session = dbSession;
-                                                }
-                                                else
-                                                {
-                                                    HashMap<String, Object> map = new
-                                                            HashMap<>();
-                                                    map.put(session.getSessionId(),
-                                                            session);
-                                                    sessionsReference.updateChildren(map);
-                                                }
-                                                Bundle bundle = new Bundle();
-                                                Intent intent = null;
-                                                if (session != null && session.getStarted()
-                                                        .equals(Session.SESSION_STARTED))
-                                                {
-                                                    intent = new Intent(LoginActivity.this,
-                                                            (isOfficer ? SetGroupsActivity.class
-                                                                    : MainActivity.class));
-                                                }
-                                                else
-                                                {
-                                                    intent = new Intent(LoginActivity.this,
-                                                            (isOfficer ? SetGroupsActivity.class
-                                                                    : WaitActivity.class));
-                                                }
-                                                bundle.putSerializable("session", session);
-                                                intent.putExtras(bundle);
-                                                startActivity(intent);
-                                                finish();
-                                            }
+                                    @Override
+                                    public void onChildRemoved(DataSnapshot dataSnapshot)
+                                    {
 
-                                            @Override
-                                            public void onCancelled(DatabaseError
-                                                                            databaseError)
-                                            {
+                                    }
 
-                                            }
-                                        }
-                                );
+                                    @Override
+                                    public void onChildMoved(DataSnapshot dataSnapshot, String s)
+                                    {
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError)
+                                    {
+
+                                    }
+                                });
+
+
                             }
                             else
                             {
@@ -382,6 +375,85 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         }
                     });
         }
+    }
+
+    private void finishLogIn(final boolean isOfficer)
+    {
+        final DatabaseReference sessionsReference = mDatabase.child
+                ("sessions");
+        sessionsReference.addListenerForSingleValueEvent(
+                new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot
+                                                     dataSnapshot)
+                    {
+                        Session dbSession = null;
+                        for (DataSnapshot child : dataSnapshot
+                                .getChildren())
+                        {
+                            Session tmpSession = child.getValue(Session.class);
+                            if (tmpSession == null || tmpSession.getSessionId() == null) continue;
+                            if (tmpSession.getSessionId().equals
+                                    (session.getSessionId()))
+                            {
+                                dbSession = tmpSession;
+                                break;
+                            }
+                        }
+                        if (dbSession != null)
+                        {
+                            session = dbSession;
+                        }
+
+                        try
+                        {
+                            addUserToSession(sessionsReference, session);
+                        } catch (Exception e)
+                        {
+                            Log.e(getClass().getSimpleName(), "Error adding user to session", e);
+                            Toast.makeText(LoginActivity.this, "Could not log you into today's " +
+                                    "session.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        HashMap<String, Object> map = new
+                                HashMap<>();
+                        map.put(session.getSessionId(),
+                                session);
+                        sessionsReference.updateChildren(map);
+                        Bundle bundle = new Bundle();
+                        Intent intent = null;
+                        if (session != null && session.getStarted()
+                                .equals(Session.SESSION_STARTED))
+                        {
+                            intent = new Intent(LoginActivity.this,
+                                    (isOfficer ? SetGroupsActivity.class
+                                            : MainActivity.class));
+                        }
+                        else
+                        {
+                            intent = new Intent(LoginActivity.this,
+                                    (isOfficer ? SetGroupsActivity.class
+                                            : WaitActivity.class));
+                        }
+                        bundle.putSerializable("session", session);
+                        bundle.putSerializable("currentUser", currentUser);
+
+                        intent.putExtras(bundle);
+
+                        startActivity(intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError
+                                                    databaseError)
+                    {
+
+                    }
+                }
+        );
     }
 
     private boolean isEmailValid(String email)

@@ -1,6 +1,7 @@
 package csce.unt.writersgroup.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by Satya on 3/28/2017.
@@ -42,9 +43,7 @@ public class User implements Serializable
     @Override
     public int hashCode()
     {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + pages;
-        return result;
+        return Objects.hash(uid, name, email);
     }
 
     @Override
@@ -52,12 +51,10 @@ public class User implements Serializable
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         User user = (User) o;
-
-        if (pages != user.pages) return false;
-        return name != null ? name.equals(user.name) : user.name == null;
-
+        return Objects.equals(uid, user.uid) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(email, user.email);
     }
 
     @Override

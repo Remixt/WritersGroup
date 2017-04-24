@@ -3,9 +3,13 @@ package csce.unt.writersgroup;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,6 +32,7 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
     public DatabaseReference mDatabase = null;
     public Firebase mFirebase = null;
     private FirebaseAuth mAuth = null;
+    private Toolbar toolbar;
 
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs)
@@ -40,6 +45,8 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_groups);
+        initFields();
+
         switchFragment(INIT_FRAGMENT);
         Bundle b = getIntent().getExtras();
         session = (Session) b.get("session");
@@ -49,6 +56,23 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
         Firebase.setAndroidContext(this);
         mFirebase = new Firebase(FIREBASE_URL);
 
+    }
+
+    private void initFields()
+    {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string
+                .navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new WritersGroupNavigationItemListener
+                (findViewById(android.R.id.content)));
     }
 
     private void switchFragment(String initFragment)
@@ -63,7 +87,7 @@ public class SetGroupsActivity extends AppCompatActivity implements SetUpGroupsF
             default:
                 fragment = SetUpGroupsFragment.newInstance();
         }
-        ft.replace(R.id.set_groups_container, fragment);
+        ft.replace(R.id.set_groups_drawer_layout, fragment);
         ft.commit();
     }
 
