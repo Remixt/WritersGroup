@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "305821001276-856gspdogh19foig47q4dhmdsd213kjs.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "csce.unt.writersgroup",
-            "certificate_hash": "a2e3fe70746ccae6fc25669d2db4723f905e161b"
-          }
-        },
-        {
           "client_id": "305821001276-qmg0k1cjqdvg5ktf0qf9ce9em5aqkqbn.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "305821001276-qmg0k1cjqdvg5ktf0qf9ce9em5aqkqbn.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

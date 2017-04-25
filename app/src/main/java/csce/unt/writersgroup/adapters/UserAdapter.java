@@ -2,6 +2,7 @@ package csce.unt.writersgroup.adapters;
 
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +35,14 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
         mDragOnLongPress = dragOnLongPress;
         setHasStableIds(true);
         setItemList(list);
+        Log.d(getClass().getSimpleName(), "Number of users in list: " + getItemList().size());
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(mLayoutId, parent, false);
+        Log.d(getClass().getSimpleName(), "Number of users in list: " + getItemList().size());
         return new ViewHolder(view);
     }
 

@@ -149,8 +149,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                 String groups = dataSnapshot.child("groups").getValue().toString();
                 for (String group : groups.split(","))
                 {
+                    if (group.trim().length() == 0) continue;
                     activity.mDatabase.child("groups").addListenerForSingleValueEvent
                             (groupValueEventListener);
+                    columnToGroupMap.put(userListAdapterList.size(), group);
                     userListAdapterList.put(group, new UserAdapter
                             (new ArrayList<Pair<Long, User>>(),
                                     R.layout
@@ -313,8 +315,13 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private int getIndexOfUser(String groupKey, User userObj)
     {
-        List<Pair<Long, User>> itemList = userListAdapterList.get
-                (groupKey).getItemList();
+        UserAdapter userAdapter = userListAdapterList.get
+                (groupKey);
+        if (userAdapter == null)
+        {
+            return -1;
+        }
+        List<Pair<Long, User>> itemList = userAdapter.getItemList();
         int index = -1;
         for (int i = 0; i < itemList.size(); i++)
         {
@@ -401,7 +408,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     {
 //        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
 //                .item_layout, true));
-//        userListAdapterList.add(new UserAdapter(getWriters(), R.layout.writer_column, R.id
+//        userListAdapterList.add(*(getWriters(), R.layout.writer_column, R.id
 //                .item_layout, true));
         activity = (SetGroupsActivity) getActivity();
         final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
@@ -575,65 +582,6 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
             groupValues.put("anchors", newGroupValues.second);
             activity.mDatabase.child("groups").child(newGroup).updateChildren(groupValues);
         }
-
-/*
-        Firebase groups = activity.mFirebase.child("groups");
-        Firebase oldGroupReference = activity.mFirebase.child("groups").child(oldGroup);
-        Firebase newGroupReference = activity.mFirebase.child("groups").child(newGroup);
-        HashMap<String, Object> oldGroupMap = new HashMap<>();
-        HashMap<String, Object> newGroupMap = new HashMap<>();
-        for (Pair userPair : userListAdapterList.get(oldColumn + "").getItemList())
-        {
-            if (!((User) userPair.second).getUid().equals(tmpWriterToChange))
-            {
-                oldGroupMap.put(((User) userPair.second).getUid(), (User) userPair.second);
-            }
-        }
-        for (Pair userPair : userListAdapterList.get(oldColumn + "").getItemList())
-        {
-            if (!((User) userPair.second).getUid().equals(tmpWriterToChange)) //this check cleans
-            // up some of the bad data we have right now for testing, can be removed later as we
-            // won't have users duplicated in a group
-            {
-                newGroupMap.put(((User) userPair.second).getUid(), (User) userPair.second);
-            }
-        }
-        newGroupMap.put(tmpWriterToChange.getUid(), tmpWriterToChange);  //can be taken out along
-        // with the above if statement later
-        oldGroupReference.setValue(oldGroupMap);
-        newGroupReference.setValue(newGroupMap);
-        oldGroupReference.runTransaction(new Transaction.Handler()
-        {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData)
-            {
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(FirebaseError firebaseError, boolean b, com.firebase.client
-                    .DataSnapshot dataSnapshot)
-            {
-
-            }
-        });
-        groups.runTransaction(new Transaction.Handler()
-        {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData)
-            {
-                mutableData.child(oldGroup);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(FirebaseError firebaseError, boolean b, com.firebase.client
-                    .DataSnapshot dataSnapshot)
-            {
-                dataSnapshot.getValue();
-            }
-        });
-*/
     }
 
     public interface Callbacks

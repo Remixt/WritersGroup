@@ -1,5 +1,6 @@
 package csce.unt.writersgroup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -119,6 +120,10 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings)
         {
             return true;
+        }
+        else if (id == R.id.action_logout)
+        {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
