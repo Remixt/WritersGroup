@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements NavActivity
 {
 
     @Override
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new WritersGroupNavigationItemListener
-                (findViewById(android.R.id.content)));
+                (findViewById(android.R.id.content), MainActivity.this));
     }
 
     @Override
@@ -123,10 +123,15 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.action_logout)
         {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            logout();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void logout()
+    {
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    }
 }

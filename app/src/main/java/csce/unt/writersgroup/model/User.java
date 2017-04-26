@@ -9,13 +9,16 @@ import java.util.Objects;
 
 public class User implements Serializable
 {
-    private String uid;
-    private String name;
-    private String email;
-    private String password;
-    private int pages;
+    public static final String IS_ANCHOR = "true";
+    public static final String NOT_IS_ANCHOR = "false";
     private String anchor;
+    private String email;
+    private String name;
+    private int pages;
+    private String password;
+    private String uid;
     private long userType;
+
 
     public User()
     {
