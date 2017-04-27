@@ -85,22 +85,24 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                             userPairList.add(new Pair<>((long) user.hashCode(), userObj));
                             int itemCount = userAdapterGroupMap.get(groupName) == null ? 1 :
                                     userAdapterGroupMap.get(groupName).getItemCount();
-                            if (userAdapterGroupMap.containsKey(groupName)) //if this group
+                            if (userAdapterGroupMap.containsKey(groupName) && userAdapterGroupMap
+                                    .get(groupName).getPositionForItemId(userObj.getUid()
+                                            .hashCode()) < 0) //if this group
                             // exists on our board view
                             {
-                                //add the user to the user adapter
+                                //add the user to the user adapter if its not already there
                                 userAdapterGroupMap.get(groupName).addItem(itemCount, new Pair<>(
                                         (long) userObj.getUid().hashCode(), userObj));
                                 //Check if the user was in the logged in user list and remove it
                                 // from the logged in list
                                 int loggedInUserIndex = getIndexOfUser
                                         (LOGGED_IN_USERS_COLUMN_HEADER,
-                                        userObj);
+                                                userObj);
                                 if (loggedInUserIndex > -1)
                                 {
                                     userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER)
                                             .removeItem
-                                            (loggedInUserIndex);
+                                                    (loggedInUserIndex);
                                 }
                             }
 
@@ -121,7 +123,9 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                             userPairList.add(new Pair<>((long) user.hashCode(), anchorObj));
                             int itemCount = userAdapterGroupMap.get(groupName) == null ? 1 :
                                     userAdapterGroupMap.get(groupName).getItemCount();
-                            if (userAdapterGroupMap.containsKey(groupName))
+                            if (userAdapterGroupMap.containsKey(groupName) && userAdapterGroupMap
+                                    .get(groupName).getPositionForItemId(anchorObj.getUid()
+                                            .hashCode()) < 0)
                             {
                                 //add the user to the user adapter
                                 userAdapterGroupMap.get(groupName).addItem(itemCount, new Pair<>(
@@ -130,12 +134,12 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                                 // from the logged in list
                                 int loggedInUserIndex = getIndexOfUser
                                         (LOGGED_IN_USERS_COLUMN_HEADER,
-                                        anchorObj);
+                                                anchorObj);
                                 if (loggedInUserIndex > -1)
                                 {
                                     userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER)
                                             .removeItem
-                                            (loggedInUserIndex);
+                                                    (loggedInUserIndex);
                                 }
                             }
 
@@ -259,14 +263,15 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         {
             tmpUserToChange = userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER).getItemList
                     ().get(row).second;
-
         }
         else if (userAdapterGroupMap.get(columnToGroupMap.get(column)) != null)
         {
             Toast.makeText(getActivity(), "Start - column: " + column + " row: " + row, Toast
                     .LENGTH_SHORT).show();
-            tmpUserToChange = userAdapterGroupMap.get(columnToGroupMap.get(column)).getItemList()
-                    .get(row).second;
+            String groupKey = columnToGroupMap.get(column);
+            List<Pair<Long, User>> groupUserList = userAdapterGroupMap.get(groupKey).getItemList
+                    ();
+            tmpUserToChange = groupUserList.get(row).second;
         }
     }
 
@@ -289,6 +294,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private String addUserFromString(String userString, User user)
     {
+        if (user == null)
+        {
+            Log.e(getClass().getSimpleName(), "Could not retrieve user to add to group");
+        }
         if (userString == null) return user.getUid();
         String[] ary = userString.split(",");
         if (ary.length == 0 || (ary.length == 1 && ary[0].length() == 0))
@@ -407,9 +416,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private void initListeners()
     {
-        final DatabaseReference sessionReference = activity.mDatabase.child("sessions").child(activity
-                .session
-                .getSessionId());
+        final DatabaseReference sessionReference = activity.mDatabase.child("sessions").child
+                (activity
+                        .session
+                        .getSessionId());
         sessionReference
                 .addValueEventListener(currentSessionValueEventListener);
         sessionReference.child("users").addListenerForSingleValueEvent(userValueEventListener);
@@ -518,8 +528,12 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
             userBoardView.addColumnList(userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER),
                     defaultHeader, false);
         }
-        for (String key : userAdapterGroupMap.keySet())
+        for (int column : columnToGroupMap.keySet())
         {
+            String key = columnToGroupMap.get(column);
+//        }
+//        for (String key : userAdapterGroupMap.keySet())
+//        {
             if (key.equals(LOGGED_IN_USERS_COLUMN_HEADER)) continue;
             final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
             ((TextView) header.findViewById(R.id.group_id)).setText(key);

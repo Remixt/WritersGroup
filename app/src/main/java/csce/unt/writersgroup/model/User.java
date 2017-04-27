@@ -1,5 +1,7 @@
 package csce.unt.writersgroup.model;
 
+import com.google.firebase.database.Exclude;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -138,6 +140,7 @@ public class User implements Serializable
         this.userType = userType;
     }
 
+    @Exclude
     public boolean isAnAnchor()
     {
         return getAnchor().toLowerCase().equals("true");

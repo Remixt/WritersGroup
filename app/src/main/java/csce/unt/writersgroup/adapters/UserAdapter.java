@@ -65,6 +65,7 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
             if (user.isAnAnchor())
             {
                 holder.cardView.setCardBackgroundColor(Color.CYAN);
+                holder.writerName.setText(user.getName() + "(Anchor)");
             }
         }
         else
