@@ -15,16 +15,27 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import csce.unt.writersgroup.model.Session;
+
 public class MainActivity extends AppCompatActivity implements NavActivity
 {
+    Button anchor_no;
+    Toolbar toolbar;
+    Button anchor_yes;
+    Button navigateToTimer;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getIntent().getExtras().containsKey("session"))
+        {
+            session = (Session) getIntent().getExtras().get("session");
+        }
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener()
@@ -36,43 +47,11 @@ public class MainActivity extends AppCompatActivity implements NavActivity
 //                        .setAction("Action", null).show();
 //            }
 //        });
-        Button navigateTo;
-        Button navigateToTimer = (Button) findViewById(R.id.button_go_to_timer);
-        navigateToTimer.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Bundle bundle = new Bundle();
-                bundle.putLong(TimerActivity.ARG_TIMER_LENGTH, (1000) * 60 * 60);
-                ActivityUtil.showScreen(MainActivity.this, TimerActivity.class, bundle);
-            }
-        });
+        navigateToTimer = (Button) findViewById(R.id.button_go_to_timer);
 
-        Button anchor_no=(Button) findViewById(R.id.dont_become_anchor_button);
-        anchor_no.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
-                anchor_buttons.setVisibility(View.GONE);
-                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
-                anchor_reminder.setVisibility(View.GONE);
-            }
-        });
-        Button anchor_yes=(Button) findViewById(R.id.become_anchor_button);
-        anchor_yes.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
-                anchor_buttons.setVisibility(View.GONE);
-                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
-                anchor_reminder.setVisibility(View.GONE);
-            }
-        });
+        anchor_no = (Button) findViewById(R.id.dont_become_anchor_button);
+        anchor_yes = (Button) findViewById(R.id.become_anchor_button);
+        initListeners();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -133,5 +112,45 @@ public class MainActivity extends AppCompatActivity implements NavActivity
     public void logout()
     {
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    }
+
+    private void initListeners()
+    {
+        navigateToTimer.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Bundle b = new Bundle();
+                b.putSerializable("session", session);
+                ActivityUtil.showScreen(MainActivity.this, WaitActivity.class, b);
+//                Bundle bundle = new Bundle();
+//                bundle.putLong(TimerActivity.ARG_TIMER_LENGTH, (1000) * 60 * 60);
+//                ActivityUtil.showScreen(MainActivity.this, TimerActivity.class, bundle);
+            }
+        });
+
+        anchor_yes.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
+                anchor_buttons.setVisibility(View.GONE);
+                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
+                anchor_reminder.setVisibility(View.GONE);
+            }
+        });
+        anchor_no.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                LinearLayout anchor_buttons = (LinearLayout) findViewById(R.id.anchor_buttons);
+                anchor_buttons.setVisibility(View.GONE);
+                TextView anchor_reminder = (TextView) findViewById(R.id.anchor_reminder);
+                anchor_reminder.setVisibility(View.GONE);
+            }
+        });
     }
 }

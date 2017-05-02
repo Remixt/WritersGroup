@@ -16,6 +16,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,9 +47,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 {
     public static final String LOGGED_IN_USERS_COLUMN_HEADER = "Logged In Users";
     SetGroupsActivity activity;
+    private Button btnCreateGroup;
+    private Button btnCreateUser;
+    private Button btnSplitGroups;
     private HashMap<Integer, String> columnToGroupMap = new HashMap<>();
-    private Button createGroup;
-    private Button createUser;
     private CheckBox isAnchorCheckbox;
     private EditText newGroupText;
     private EditText newUserText;
@@ -85,22 +89,24 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                             userPairList.add(new Pair<>((long) user.hashCode(), userObj));
                             int itemCount = userAdapterGroupMap.get(groupName) == null ? 1 :
                                     userAdapterGroupMap.get(groupName).getItemCount();
-                            if (userAdapterGroupMap.containsKey(groupName)) //if this group
+                            if (userAdapterGroupMap.containsKey(groupName) && userAdapterGroupMap
+                                    .get(groupName).getPositionForItemId(userObj.getUid()
+                                            .hashCode()) < 0) //if this group
                             // exists on our board view
                             {
-                                //add the user to the user adapter
+                                //add the user to the user adapter if its not already there
                                 userAdapterGroupMap.get(groupName).addItem(itemCount, new Pair<>(
                                         (long) userObj.getUid().hashCode(), userObj));
                                 //Check if the user was in the logged in user list and remove it
                                 // from the logged in list
                                 int loggedInUserIndex = getIndexOfUser
                                         (LOGGED_IN_USERS_COLUMN_HEADER,
-                                        userObj);
+                                                userObj);
                                 if (loggedInUserIndex > -1)
                                 {
                                     userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER)
                                             .removeItem
-                                            (loggedInUserIndex);
+                                                    (loggedInUserIndex);
                                 }
                             }
 
@@ -121,7 +127,9 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                             userPairList.add(new Pair<>((long) user.hashCode(), anchorObj));
                             int itemCount = userAdapterGroupMap.get(groupName) == null ? 1 :
                                     userAdapterGroupMap.get(groupName).getItemCount();
-                            if (userAdapterGroupMap.containsKey(groupName))
+                            if (userAdapterGroupMap.containsKey(groupName) && userAdapterGroupMap
+                                    .get(groupName).getPositionForItemId(anchorObj.getUid()
+                                            .hashCode()) < 0)
                             {
                                 //add the user to the user adapter
                                 userAdapterGroupMap.get(groupName).addItem(itemCount, new Pair<>(
@@ -130,19 +138,22 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                                 // from the logged in list
                                 int loggedInUserIndex = getIndexOfUser
                                         (LOGGED_IN_USERS_COLUMN_HEADER,
-                                        anchorObj);
+                                                anchorObj);
                                 if (loggedInUserIndex > -1)
                                 {
                                     userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER)
                                             .removeItem
-                                            (loggedInUserIndex);
+                                                    (loggedInUserIndex);
                                 }
                             }
 
                         }
                     }
                 }
-                columnToGroupMap.put(userAdapterGroupMap.size(), groupName);
+                if (userAdapterGroupMap.containsKey(groupName))
+                {
+                    addToColumnMap(groupName);
+                }
 //                userAdapterGroupMap.put(userAdapterGroupMap.size() + "", new UserAdapter
 //                        (userPairList, R.layout
 //                                .writer_column, R.id.item_layout, true));
@@ -173,7 +184,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                     //add a listener to the group for changes to the group
                     activity.mDatabase.child("groups").addListenerForSingleValueEvent
                             (groupValueEventListener);
-                    columnToGroupMap.put(userAdapterGroupMap.size(), group);
+                    addToColumnMap(group);
                     //store group name in map with numeric column number as the key
                     UserAdapter value = new UserAdapter
                             (new ArrayList<Pair<Long, User>>(),
@@ -259,14 +270,15 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         {
             tmpUserToChange = userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER).getItemList
                     ().get(row).second;
-
         }
         else if (userAdapterGroupMap.get(columnToGroupMap.get(column)) != null)
         {
-            Toast.makeText(getActivity(), "Start - column: " + column + " row: " + row, Toast
-                    .LENGTH_SHORT).show();
-            tmpUserToChange = userAdapterGroupMap.get(columnToGroupMap.get(column)).getItemList()
-                    .get(row).second;
+//            Toast.makeText(getActivity(), "Start - column: " + column + " row: " + row, Toast
+//                    .LENGTH_SHORT).show();
+            String groupKey = columnToGroupMap.get(column);
+            List<Pair<Long, User>> groupUserList = userAdapterGroupMap.get(groupKey).getItemList
+                    ();
+            tmpUserToChange = groupUserList.get(row).second;
         }
     }
 
@@ -281,14 +293,31 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     {
         if (fromColumn != toColumn || fromRow != toRow)
         {
-            Toast.makeText(getActivity(), "End - column: " + toColumn + " row: " + toRow, Toast
-                    .LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), "End - column: " + toColumn + " row: " + toRow, Toast
+//                    .LENGTH_SHORT).show();
             tmpUserToChange = null;
         }
     }
 
+    private void addToColumnMap(String groupName)
+    {
+        Integer index = ImmutableBiMap.copyOf(columnToGroupMap).inverse().get(groupName);
+        if (index == null)
+        {
+            columnToGroupMap.put(userAdapterGroupMap.size(), groupName);
+        }
+//        else{
+//            columnToGroupMap.remove(index);
+//            columnToGroupMap.put(userAdapterGroupMap.size(),groupName);
+//        }
+    }
+
     private String addUserFromString(String userString, User user)
     {
+        if (user == null)
+        {
+            Log.e(getClass().getSimpleName(), "Could not retrieve user to add to group");
+        }
         if (userString == null) return user.getUid();
         String[] ary = userString.split(",");
         if (ary.length == 0 || (ary.length == 1 && ary[0].length() == 0))
@@ -304,6 +333,70 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         }
         newUserString += user.getUid();
         return trimTrailingComma(newUserString);
+    }
+
+    //loops through all logged in writers for users not in a group
+    //and adds them to a group with the smallest number of users
+    private void autoSplitGroups() throws Exception
+    {
+        BiMap<Integer, String> columnGroupBiMap = HashBiMap.create(columnToGroupMap);
+        BiMap<String, UserAdapter> userAdapterGroupBiMap = HashBiMap.create(userAdapterGroupMap);
+        userAdapterGroupBiMap.remove(LOGGED_IN_USERS_COLUMN_HEADER);
+        int smallestGroupSize = userAdapterGroupBiMap.values().iterator().next().getItemCount();
+        for (UserAdapter userAdapter : userAdapterGroupBiMap.values())
+        {
+            if (userAdapter.getItemCount() < smallestGroupSize)
+            {
+                smallestGroupSize = userAdapter.getItemCount();
+            }
+        }
+        ArrayList<Pair<Long, User>> pairToRemove = new ArrayList<>();
+        for (Pair<Long, User> writerPair : activity.getLoggedInWriters())
+        {
+            boolean userInAGroup = false;
+            User user = writerPair.second;
+            for (UserAdapter userAdapter : userAdapterGroupBiMap.values())
+            {
+                int index = userAdapter.getItemList().indexOf(writerPair);
+                if (index > -1)
+                {
+                    userInAGroup = true;
+                    break;
+                }
+            }
+
+            if (!userInAGroup)
+            {
+                for (UserAdapter userAdapter : userAdapterGroupBiMap.values())
+                {
+
+                    if (userAdapter.getItemCount() <= smallestGroupSize)
+                    {
+                        tmpUserToChange = user;
+                        String groupName = userAdapterGroupBiMap.inverse().get(userAdapter);
+                        int toColumn = columnGroupBiMap.inverse().get(groupName);
+                        int toRow = userAdapter.getItemCount();
+                        int fromColumn = 0;
+                        int fromRow = userAdapter.getPositionForItem(writerPair);
+//                        onItemDragEnded(fromColumn,fromRow, toColumn, toRow);
+                        userAdapter.addItem(toRow, writerPair);
+                        userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER).removeItem(fromRow);
+                        pairToRemove.add(writerPair);
+
+                        onItemChangedColumn(fromColumn, toColumn);
+                        tmpUserToChange = null;
+                        smallestGroupSize = userAdapter.getItemCount();
+                        break;
+                    }
+                }
+            }
+
+        }
+        for (Pair writerPair : pairToRemove)
+        {
+            activity.getLoggedInWriters().remove(writerPair);
+        }
+        updateBoardView();
     }
 
     private void createGroupInFirebase(String groupName)
@@ -352,7 +445,6 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         return index;
     }
 
-
     private Pair<String, String> getUserAnchorStringsFromGroup(String groupKey)
     {
         String userString = "", anchorString = "";
@@ -393,9 +485,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
         userBoardView.setSnapDragItemToTouch(true);
         userBoardView.setBoardListener(this);
         startSession = (Button) currentView.findViewById(R.id.button_start_session);
-        createGroup = (Button) currentView.findViewById(R.id.button_create_new_group);
+        btnCreateGroup = (Button) currentView.findViewById(R.id.button_create_new_group);
         newGroupText = (EditText) currentView.findViewById(R.id.edit_text_new_group);
-        createUser = (Button) currentView.findViewById(R.id.button_create_new_user);
+        btnCreateUser = (Button) currentView.findViewById(R.id.button_create_new_user);
+        btnSplitGroups = (Button) currentView.findViewById(R.id.button_auto_split_groups);
         newUserText = (EditText) currentView.findViewById(R.id.edit_text_new_user);
         isAnchorCheckbox = (CheckBox) currentView.findViewById(R.id.checkbox_is_anchor);
 //        ((TextView) header.findViewById(R.id.writer_name)).setText("Group " + (mColumns + 1));
@@ -407,9 +500,10 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
 
     private void initListeners()
     {
-        final DatabaseReference sessionReference = activity.mDatabase.child("sessions").child(activity
-                .session
-                .getSessionId());
+        final DatabaseReference sessionReference = activity.mDatabase.child("sessions").child
+                (activity
+                        .session
+                        .getSessionId());
         sessionReference
                 .addValueEventListener(currentSessionValueEventListener);
         sessionReference.child("users").addListenerForSingleValueEvent(userValueEventListener);
@@ -422,7 +516,23 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                 activity.startSession();
             }
         });
-        createGroup.setOnClickListener(new View.OnClickListener()
+        btnSplitGroups.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                try
+                {
+                    autoSplitGroups();
+                } catch (Exception e)
+                {
+                    Log.e(getClass().getSimpleName(), "Error splitting groups", e);
+                    Toast.makeText(activity, "Groups could not be split at this time", Toast
+                            .LENGTH_SHORT).show();
+                }
+            }
+        });
+        btnCreateGroup.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -432,7 +542,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                 {
                     groupName = "Group " + (userAdapterGroupMap.size());
                 }
-                columnToGroupMap.put(userAdapterGroupMap.size(), groupName);
+                addToColumnMap(groupName);
                 UserAdapter newUserAdapter = new UserAdapter(new ArrayList<Pair<Long,
                         User>>(), R.layout
                         .writer_column, R.id.item_layout, true);
@@ -440,9 +550,11 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                 createGroupInFirebase(groupName);
 
                 updateBoardView();
+                newGroupText.setText("");
+                ActivityUtil.hideKeyboard(activity);
             }
         });
-        createUser.setOnClickListener(new View.OnClickListener()
+        btnCreateUser.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -465,7 +577,9 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
                 Map<String, Object> userObj = new HashMap<>();
                 userObj.put(user.getUid(), user);
                 sessionReference.child("users").updateChildren(userObj);
-                updateBoardView();
+
+                newUserText.setText("");
+                ActivityUtil.hideKeyboard(activity);
             }
         });
     }
@@ -510,7 +624,7 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
     private void updateBoardView()
     {
         userBoardView.clearBoard();
-        View defaultHeader = View.inflate(getActivity(), R.layout.writer_column_header, null);
+        View defaultHeader = View.inflate(activity, R.layout.writer_column_header, null);
         ((TextView) defaultHeader.findViewById(R.id.group_id)).setText
                 (LOGGED_IN_USERS_COLUMN_HEADER);
         if (userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER) instanceof DragItemAdapter)
@@ -518,10 +632,14 @@ public class SetUpGroupsFragment extends Fragment implements AdapterView.OnItemC
             userBoardView.addColumnList(userAdapterGroupMap.get(LOGGED_IN_USERS_COLUMN_HEADER),
                     defaultHeader, false);
         }
-        for (String key : userAdapterGroupMap.keySet())
+        for (int column : columnToGroupMap.keySet())
         {
+            String key = columnToGroupMap.get(column);
+//        }
+//        for (String key : userAdapterGroupMap.keySet())
+//        {
             if (key.equals(LOGGED_IN_USERS_COLUMN_HEADER)) continue;
-            final View header = View.inflate(getActivity(), R.layout.writer_column_header, null);
+            final View header = View.inflate(activity, R.layout.writer_column_header, null);
             ((TextView) header.findViewById(R.id.group_id)).setText(key);
             if (userAdapterGroupMap.get(key) instanceof DragItemAdapter)
             {

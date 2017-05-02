@@ -72,27 +72,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Firebase root URL
      */
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
-    private Session session;
+    private User currentUser;
+    private FirebaseAuth mAuth = null;
+    /**
+     * Keep track of the login task to ensure we can cancel it if requested.
+     */
+    private UserLoginTask mAuthTask = null;
     /**
      * Firebase Databse reference,
      * Auth reference, and Firebase reference
      */
     private DatabaseReference mDatabase = null;
-    private FirebaseAuth mAuth = null;
-    private Firebase mFirebase = null;
-
-
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
-
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private Firebase mFirebase = null;
+    private View mLoginFormView;
     private EditText mPasswordView;
     private View mProgressView;
-    private View mLoginFormView;
-    private User currentUser;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -138,6 +135,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                ActivityUtil.hideKeyboard(LoginActivity.this);
                 attemptLogin(false);
             }
         });
@@ -148,6 +147,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view)
             {
+                ActivityUtil.hideKeyboard(LoginActivity.this);
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
             }
         });
@@ -158,6 +158,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View v)
             {
+                ActivityUtil.hideKeyboard(LoginActivity.this);
                 attemptLogin(true);
             }
         });
@@ -435,7 +436,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         {
                             intent = new Intent(LoginActivity.this,
                                     (isOfficer ? SetGroupsActivity.class
-                                            : WaitActivity.class));
+                                            : MainActivity.class));
                         }
                         bundle.putSerializable("session", session);
                         bundle.putSerializable("currentUser", currentUser);

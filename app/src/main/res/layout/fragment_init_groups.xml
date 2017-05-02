@@ -1,85 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".4"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/button_start_session"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Session" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="New Group Name:"
-            android:textSize="24dp" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight=".5"
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/edit_text_new_group"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight=".7" />
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button_create_new_group"
-                android:layout_width="0dp"
+                <Button
+                    android:id="@+id/button_auto_split_groups"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:text="Auto-Split Groups" />
+
+                <Button
+                    android:id="@+id/button_start_session"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:text="Start Session" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight=".3"
-                android:text="Create New Group" />
+                android:text="New Group Name:"
+                android:textSize="24dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edit_text_new_group"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".7" />
+
+                <Button
+                    android:id="@+id/button_create_new_group"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"
+                    android:text="Create New Group" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New User Name:"
+                android:textSize="24dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edit_text_new_user"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".7" />
+
+                <CheckBox
+                    android:id="@+id/checkbox_is_anchor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Anchor" />
+
+                <Button
+                    android:id="@+id/button_create_new_user"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"
+                    android:text="Create New User" />
+            </LinearLayout>
         </LinearLayout>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New User Name:"
-            android:textSize="24dp" />
+            android:text="Drag and drop users to groups" />
 
-        <LinearLayout
+        <com.woxthebox.draglistview.BoardView
+            android:id="@+id/init_groups_writer_board_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <EditText
-                android:id="@+id/edit_text_new_user"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".7" />
-
-            <CheckBox
-                android:id="@+id/checkbox_is_anchor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Anchor" />
-
-            <Button
-                android:id="@+id/button_create_new_user"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".3"
-                android:text="Create New User" />
-        </LinearLayout>
+            android:layout_height="0dp"
+            android:layout_weight=".55"
+            android:fillViewport="false" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Drag and drop users to groups" />
-
-    <com.woxthebox.draglistview.BoardView
-        android:id="@+id/init_groups_writer_board_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".55"
-        android:fillViewport="false" />
-</LinearLayout>
+</ScrollView>

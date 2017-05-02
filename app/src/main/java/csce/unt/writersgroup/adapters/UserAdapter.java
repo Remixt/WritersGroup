@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.woxthebox.draglistview.DragItemAdapter;
 
@@ -26,7 +25,6 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
     private final int mLayoutId;
     private final int mGrabHandleId;
     private final boolean mDragOnLongPress;
-
     public UserAdapter(ArrayList<Pair<Long, User>> list, int layoutId, int grabHandleId,
                        boolean dragOnLongPress)
     {
@@ -65,6 +63,7 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
             if (user.isAnAnchor())
             {
                 holder.cardView.setCardBackgroundColor(Color.CYAN);
+                holder.writerName.setText(user.getName() + "(Anchor)");
             }
         }
         else
@@ -93,13 +92,13 @@ public class UserAdapter extends DragItemAdapter<Pair<Long, User>, UserAdapter.V
         @Override
         public void onItemClicked(View view)
         {
-            Toast.makeText(view.getContext(), "Item clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(view.getContext(), "Item clicked", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public boolean onItemLongClicked(View view)
         {
-            Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
             return true;
         }
     }

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/anchor_reminder"
@@ -14,17 +15,16 @@
         android:ems="10"
         android:gravity="center"
         android:text="@string/anchor_question"
-        android:textSize="42sp"
-        android:visibility="visible"
-        android:layout_below="@id/toolbar"/>
+        android:textSize="32sp"
+        android:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/anchor_buttons"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:layout_gravity="center"
         android:visibility="visible">
 
         <Button
@@ -32,54 +32,67 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_margin="3dp"
             android:layout_weight="1"
+            android:background="@drawable/green_button"
+            android:padding="5dp"
             android:text="Yes"
-            android:textSize="42sp" />
+            android:textSize="36sp" />
+
         <Button
             android:id="@+id/dont_become_anchor_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_margin="3dp"
             android:layout_weight="1"
+            android:background="@drawable/red_button"
+            android:padding="5dp"
             android:text="No"
-            android:textSize="42sp" />
+            android:textSize="36sp" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/editText2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_weight="1"
         android:ems="10"
         android:gravity="center"
-        android:textIsSelectable="false"
         android:text="@string/sign_in_page_text"
-        android:textSize="42sp"
-        />
+        android:textIsSelectable="false"
+        android:textSize="32sp" />
 
-    <EditText
+    <com.shawnlin.numberpicker.NumberPicker
         android:id="@+id/number_of_pages"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="16dp"
         android:layout_weight="1"
-        android:ems="10"
         android:gravity="center"
-        android:hint="0"
-        android:inputType="number"
-        android:textSize="42sp"
+        app:np_dividerColor="@color/colorPrimary"
+        app:np_formatter="%02d"
+        app:np_height="180dp"
+        app:np_max="9999"
+        app:np_min="0"
+        app:np_selectedTextColor="@color/colorPrimary"
+        app:np_textColor="@color/colorPrimary"
+        app:np_textSize="32sp"
+        app:np_typeface="sans-serif-light"
+        app:np_value="3"
+        app:np_width="64dp"
         />
 
     <Button
         android:id="@+id/button_go_to_timer"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
-        android:text="Sign-in"
-        android:textSize="42sp"
-        />
-
+        android:background="@drawable/blue_button"
+        android:padding="5dp"
+        android:text="Go to Timer"
+        android:textSize="36sp" />
 </LinearLayout>

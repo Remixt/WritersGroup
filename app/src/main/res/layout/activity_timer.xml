@@ -1,9 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@drawable/gradient_background"
     tools:context="csce.unt.writersgroup.TimerActivity">
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -11,25 +10,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/text_timer"
             android:layout_width="395dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="center"
             android:keepScreenOn="true"
             android:text="00:00:00.000"
-            android:textColor="#33b5e5"
-            android:textSize="50sp"
+            android:textColor="#464646"
+            android:textSize="60sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/button_start_timer"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_margin="15dp"
+            android:background="@drawable/blue_button"
+            android:padding="10dp"
             android:text="@string/timer_start_button" />
 
 

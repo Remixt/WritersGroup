@@ -1,6 +1,5 @@
 package csce.unt.writersgroup;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,12 +24,12 @@ public class WaitActivity extends AppCompatActivity
      * Firebase root URL
      */
     private static final String FIREBASE_URL = "https://writersgroup-69ec1.firebaseio.com/";
+    private FirebaseAuth mAuth = null;
     /**
      * Firebase Databse reference,
      * Auth reference, and Firebase reference
      */
     private DatabaseReference mDatabase = null;
-    private FirebaseAuth mAuth = null;
     private Firebase mFirebase = null;
 
     private Session session;
@@ -81,10 +80,9 @@ public class WaitActivity extends AppCompatActivity
                     {
                         session.setSessionId(SESSION_STARTED);
                         Bundle bundle = new Bundle();
-                        Intent intent = new Intent(WaitActivity.this, MainActivity.class);
+                        bundle.putLong(TimerActivity.ARG_TIMER_LENGTH, (1000) * 60 * 60);
                         bundle.putSerializable("session", session);
-                        intent.putExtras(bundle);
-                        startActivity(intent);
+                        ActivityUtil.showScreen(WaitActivity.this, TimerActivity.class, bundle);
                         finish();
                     }
                 }

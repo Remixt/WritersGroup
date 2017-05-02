@@ -5,4 +5,17 @@
     <color name="colorAccent">#FF4081</color>
     <color name="black_overlay">#66000000</color>
     <color name="app_color">#8EAE3C</color>
+    <color name="action_bar_color">#5f98e3</color>
+    <color name="rt_blue">#5f98e3</color>
+    <color name="rt_blue_alt">#1D65C2</color>
+    <color name="rt_green">#13d102</color>
+    <color name="rt_green_alt">#096c00</color>
+    <color name="rt_green_disabled">#84a180</color>
+    <color name="disabled_gray">#bfbfbf</color>
+    <color name="common_action_bar_splitter">#D2D2D2</color>
+    <color name="normal">#FFF</color>
+    <color name="highlight">#9b00d1ff</color>
+    <color name="rt_blue_disabled">#2a1d65c2</color>
+    <color name="rt_yellow">#9cfff781</color>
+    <color name="rt_red">#6cff582f</color>
 </resources>

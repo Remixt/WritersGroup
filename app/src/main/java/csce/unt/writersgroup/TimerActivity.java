@@ -69,7 +69,7 @@ public class TimerActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                if (startTimer.getText().equals(START_TIMER_TEXT))
+                if (startTimer.getText().toString().equalsIgnoreCase(START_TIMER_TEXT))
                 {
                     startTimer.setText(STOP_TIMER_TEXT);
                     countDownTimer.start();
